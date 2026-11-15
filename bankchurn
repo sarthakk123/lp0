@@ -108,3 +108,16 @@ plt.xlabel("Predicted")
 plt.ylabel("Actual")
 plt.colorbar()
 plt.show()
+
+
+import pandas as pd
+from sklearn.metrics import accuracy_score
+
+comparison = pd.DataFrame({
+    "model": ["baseline", "improved"],
+    "accuracy": [
+        accuracy_score(y_test, y_pred),
+        accuracy_score(y_test, y_pred2)]
+})
+
+print(comparison)
