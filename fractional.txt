@@ -1,0 +1,25 @@
+n = int(input("Enter number of items: "))
+
+items = []
+for i in range(n):
+    w = float(input(f"Weight of item {i + 1}: "))
+    v = float(input(f"Value of item {i + 1}: "))
+    items.append([w, v, v / w])
+
+capacity = float(input("Enter capacity of knapsack: "))
+
+items.sort(key=lambda x: x[2], reverse=True)
+
+total = 0
+for w, v, ratio in items:
+    if capacity >= w:
+        total += v
+        capacity -= w
+        print(f"Take item fully   -> weight {w:g}, value {v:g}")
+    else:
+        total += ratio * capacity
+        print(f"Take {capacity:g}/{w:g} part -> value {ratio * capacity:g}")
+        capacity = 0
+        break
+
+print("Maximum value:", total)

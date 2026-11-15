@@ -1,0 +1,14 @@
+# Recursive Fibonacci
+
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+n = int(input("Enter n: "))
+
+for i in range(n):
+    print(fib(i), end=" ")
+
+# Time complexity  : O(2^n)
+# Space complexity : O(n)  (recursion stack)

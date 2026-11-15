@@ -1,0 +1,46 @@
+import matplotlib.pyplot as plt
+
+def f(x):
+    return (x + 3) ** 2
+
+def df(x):
+    return 2 * (x + 3)
+
+print("f(2)  =", f(2))
+print("df(2) =", df(2))
+
+
+x = 2
+learning_rate = 0.1
+iterations = 30
+
+for i in range(iterations):
+    gradient = df(x)
+    x = x - learning_rate * gradient
+    print("iteration", i + 1, " x =", round(x, 4), " f(x) =", round(f(x), 4))
+
+print()
+print("Local minimum at x =", round(x, 4))
+print("Minimum value =", round(f(x), 4))
+
+
+xs = []
+ys = []
+for value in range(-80, 30):
+    point = value / 10
+    xs.append(point)
+    ys.append(f(point))
+
+plt.plot(xs, ys, label="y = (x + 3)^2")
+plt.scatter([x], [f(x)], color="red", label="minimum found")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.legend()
+plt.show()
+
+
+for lr in [0.01, 0.1, 0.5, 1.1]:
+    x = 2
+    for i in range(30):
+        x = x - lr * df(x)
+    print("learning rate =", lr, " final x =", round(x, 4), " f(x) =", round(f(x), 4))

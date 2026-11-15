@@ -1,0 +1,29 @@
+n = int(input("Enter number of items: "))
+
+weight = []
+value = []
+for i in range(n):
+    weight.append(int(input(f"Weight of item {i + 1}: ")))
+    value.append(int(input(f"Value of item {i + 1}: ")))
+
+capacity = int(input("Enter capacity of knapsack: "))
+
+dp = [[0] * (capacity + 1) for _ in range(n + 1)]
+
+for i in range(1, n + 1):
+    for c in range(capacity + 1):
+        if weight[i - 1] <= c:
+            dp[i][c] = max(dp[i - 1][c], value[i - 1] + dp[i - 1][c - weight[i - 1]])
+        else:
+            dp[i][c] = dp[i - 1][c]
+
+print("Maximum value:", dp[n][capacity])
+
+c = capacity
+chosen = []
+for i in range(n, 0, -1):
+    if dp[i][c] != dp[i - 1][c]:
+        chosen.append(i)
+        c -= weight[i - 1]
+
+print("Items chosen:", chosen[::-1])

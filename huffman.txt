@@ -1,0 +1,29 @@
+import heapq
+
+text = input("Enter a string: ")
+
+freq = {}
+for ch in text:
+    freq[ch] = freq.get(ch, 0) + 1
+
+heap = [(f, ch, None, None) for ch, f in freq.items()]
+heapq.heapify(heap)
+
+while len(heap) > 1:
+    a = heapq.heappop(heap)
+    b = heapq.heappop(heap)
+    heapq.heappush(heap, (a[0] + b[0], "", a, b))
+
+codes = {}
+def walk(node, code=""):
+    if node[1]:
+        codes[node[1]] = code or "0"
+    else:
+        walk(node[2], code + "0")
+        walk(node[3], code + "1")
+
+walk(heap[0])
+
+for ch, code in codes.items():
+    print(ch, "=", code)
+print("Encoded:", "".join(codes[ch] for ch in text))

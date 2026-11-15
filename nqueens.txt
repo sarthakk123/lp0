@@ -1,0 +1,39 @@
+n = int(input("Enter n: "))
+row0 = int(input("Row of first queen (0-based): "))
+col0 = int(input("Column of first queen (0-based): "))
+
+board = [[0] * n for _ in range(n)]
+board[row0][col0] = 1
+
+
+def safe(r, c):
+    for i in range(n):
+        if board[r][i] == 1 or board[i][c] == 1:
+            return False
+    for i in range(-n, n):
+        if 0 <= r + i < n and 0 <= c + i < n and board[r + i][c + i] == 1:
+            return False
+        if 0 <= r + i < n and 0 <= c - i < n and board[r + i][c - i] == 1:
+            return False
+    return True
+
+
+def solve(r):
+    if r == n:
+        return True
+    if r == row0:
+        return solve(r + 1)
+    for c in range(n):
+        if safe(r, c):
+            board[r][c] = 1
+            if solve(r + 1):
+                return True
+            board[r][c] = 0
+    return False
+
+
+if solve(0):
+    for row in board:
+        print(" ".join("Q" if x else "." for x in row))
+else:
+    print("No solution exists")

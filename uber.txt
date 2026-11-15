@@ -1,0 +1,144 @@
+import pandas as pd
+import math
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+
+
+df = pd.read_csv("uber.csv")
+
+print("Rows and columns:", df.shape)
+print()
+print(df.head())
+
+
+print(df.info())
+print()
+print("Missing values in each column:")
+print(df.isnull().sum())
+
+
+df = df.drop(columns=["Unnamed: 0", "key"])
+df = df.dropna()
+
+print("Shape after dropping columns and missing values:", df.shape)
+
+
+df["pickup_datetime"] = pd.to_datetime(df["pickup_datetime"], errors="coerce", utc=True)
+df = df.dropna()
+
+print(df["pickup_datetime"].head())
+
+
+df = df[df["fare_amount"] > 0]
+df = df[df["fare_amount"] < 300]
+
+df = df[df["passenger_count"] >= 1]
+df = df[df["passenger_count"] <= 6]
+
+df = df[df["pickup_longitude"] > -75]
+df = df[df["pickup_longitude"] < -72]
+df = df[df["pickup_latitude"] > 40]
+df = df[df["pickup_latitude"] < 42]
+
+df = df[df["dropoff_longitude"] > -75]
+df = df[df["dropoff_longitude"] < -72]
+df = df[df["dropoff_latitude"] > 40]
+df = df[df["dropoff_latitude"] < 42]
+
+print("Shape after removing invalid rows:", df.shape)
+
+
+distance = []
+
+for i in range(len(df)):
+    lat1 = df["pickup_latitude"].iloc[i]
+    lon1 = df["pickup_longitude"].iloc[i]
+    lat2 = df["dropoff_latitude"].iloc[i]
+    lon2 = df["dropoff_longitude"].iloc[i]
+
+    lat1 = math.radians(lat1)
+    lon1 = math.radians(lon1)
+    lat2 = math.radians(lat2)
+    lon2 = math.radians(lon2)
+
+    a = math.sin((lat2 - lat1) / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
+    d = 6371 * 2 * math.asin(math.sqrt(a))
+    distance.append(d)
+
+df["distance_km"] = distance
+
+print(df["distance_km"].head())
+
+
+df = df[df["distance_km"] > 0]
+
+df["hour"] = df["pickup_datetime"].dt.hour
+df["weekday"] = df["pickup_datetime"].dt.weekday
+df["day"] = df["pickup_datetime"].dt.day
+df["month"] = df["pickup_datetime"].dt.month
+df["year"] = df["pickup_datetime"].dt.year
+
+print("Shape after adding new columns:", df.shape)
+print()
+print(df.head())
+
+
+plt.boxplot(df["fare_amount"])
+plt.title("Fare amount")
+plt.show()
+
+
+plt.boxplot(df["distance_km"])
+plt.title("Distance in km")
+plt.show()
+
+
+plt.figure(figsize=(9, 7))
+plt.imshow(corr)
+plt.colorbar()
+plt.xticks(range(len(corr.columns)), corr.columns, rotation=90)
+plt.yticks(range(len(corr.columns)), corr.columns)
+plt.title("Correlation matrix")
+plt.show()
+
+
+data = df.drop(columns=["pickup_datetime"])
+
+X = data.drop(columns=["fare_amount"])
+y = data["fare_amount"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+lr = LinearRegression()
+lr.fit(X_train, y_train)
+y_pred_lr = lr.predict(X_test)
+
+
+rf = RandomForestRegressor(n_estimators=100, random_state=42)
+rf.fit(X_train, y_train)
+y_pred_rf = rf.predict(X_test)
+
+
+r2_lr = r2_score(y_test, y_pred_lr)
+rmse_lr = math.sqrt(mean_squared_error(y_test, y_pred_lr))
+mae_lr = mean_absolute_error(y_test, y_pred_lr)
+
+print("Linear Regression")
+print("R2   =", r2_lr)
+print("RMSE =", rmse_lr)
+print("MAE  =", mae_lr)
+
+
+r2_rf = r2_score(y_test, y_pred_rf)
+rmse_rf = math.sqrt(mean_squared_error(y_test, y_pred_rf))
+mae_rf = mean_absolute_error(y_test, y_pred_rf)
+
+print("Random Forest")
+print("R2   =", r2_rf)
+print("RMSE =", rmse_rf)
+print("MAE  =", mae_rf)

@@ -1,0 +1,60 @@
+seed = 12345
+comparisons = 0
+
+
+def next_rand():
+    global seed
+    seed = (seed * 1103515245 + 12345) % 2147483648
+    return seed
+
+
+def partition(a, low, high):
+    global comparisons
+    pivot = a[high]
+    i = low - 1
+    for j in range(low, high):
+        comparisons += 1
+        if a[j] <= pivot:
+            i += 1
+            a[i], a[j] = a[j], a[i]
+    a[i + 1], a[high] = a[high], a[i + 1]
+    return i + 1
+
+
+def quick_deterministic(a, low, high):
+    if low < high:
+        p = partition(a, low, high)
+        quick_deterministic(a, low, p - 1)
+        quick_deterministic(a, p + 1, high)
+
+
+def quick_randomized(a, low, high):
+    if low < high:
+        r = low + next_rand() % (high - low + 1)
+        a[r], a[high] = a[high], a[r]
+        p = partition(a, low, high)
+        quick_randomized(a, low, p - 1)
+        quick_randomized(a, p + 1, high)
+
+
+def run(func, data):
+    global comparisons
+    arr = data[:]
+    comparisons = 0
+    func(arr, 0, len(arr) - 1)
+    return arr, comparisons
+
+
+n = int(input("Enter size of the array (<= 500): "))
+
+random_list = [next_rand() % 100000 for _ in range(n)]
+sorted_list = list(range(1, n + 1))
+
+for name, data in (("Random input", random_list), ("Sorted input", sorted_list)):
+    print(f"\n{name} (n = {n})")
+    print(f"{'Algorithm':<18}{'Comparisons':>14}")
+    for label, func in (("Deterministic", quick_deterministic),
+                        ("Randomized", quick_randomized)):
+        result, comps = run(func, data)
+        assert result == sorted(data)
+        print(f"{label:<18}{comps:>14}")
